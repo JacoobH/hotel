@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.hotel.dao.IRoomTypeDao">
+    <!--resultMap里的id写返回结果集，以键值对得方式返回，type里写model得别名，映射类  -->
+    <resultMap id="RoomTypeResultMap" type="RoomType">
+        <!-- 这里的id为主键 ,result为返回结果，property为model对应得字段别名，column表里得字段名 -->
+        <id property="id" column="TID"/>
+        <result property="name" column="NAME"/>
+        <result property="rent" column="RENT"/>
+        <result property="totalAmount" column="TOTAL_AMOUNT"/>
+        <result property="remainAmount" column="REMAIN_AMOUNT"/>
+        <result property="note" column="NOTE"/>
+    </resultMap>
+
+    <!--parameterType：设置别名 useGeneratedKeys="true" keyProperty="no"表里自增 ，这里得设置方法-->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into room_type (NAME, RENT, TOTAL_AMOUNT, REMAIN_AMOUNT, NOTE)
+        values (#{name},#{rent},#{totalAmount},#{remainAmount},#{note});
+    </insert>
+
+    <update id="update">
+        update room_type
+        <set>
+            <if test="name != null">NAME = #{name},</if>
+            <if test="rent != null">RENT = #{rent},</if>
+            <if test="totalAmount != null">TOTAL_AMOUNT = #{totalAmount},</if>
+            <if test="remainAmount != null">REMAIN_AMOUNT = #{remainAmount},</if>
+            <if test="note != null">NOTE = #{note}</if>
+        </set>
+        where TID = #{id};
+    </update>
+
+    <delete id="delete">
+        delete from room_type
+        where TID = #{id}
+    </delete>
+
+    <select id="selectListBySearchText" resultMap="RoomTypeResultMap">
+        select * from room_type
+        <where>
+            <if test="searchText != null">
+                and name regexp #{searchText}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectRoomTypeById" resultMap="RoomTypeResultMap">
+        select * from room_type
+        where TID = #{id};
+    </select>
+</mapper>

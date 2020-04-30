@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.hotel.dao.IEmployeeDao">
+    <!--resultMap里的id写返回结果集，以键值对得方式返回，type里写model得别名，映射类  -->
+    <resultMap id="EmployeeResultMap" type="Employee">
+        <!-- 这里的id为主键 ,result为返回结果，property为model对应得字段别名，column表里得字段名 -->
+        <id property="id" column="EID"/>
+        <result property="name" column="NAME"/>
+        <result property="gender" column="GENDER"/>
+        <result property="birthday" column="BIRTHDAY"/>
+        <result property="seniority" column="SENIORITY"/>
+        <result property="password" column="PASSWORD"/>
+        <result property="phoneNumber" column="PHONE_NUMBER"/>
+        <result property="note" column="NOTE"/>
+    </resultMap>
+
+    <!--parameterType：设置别名 useGeneratedKeys="true" keyProperty="no"表里自增 ，这里得设置方法-->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into employee(NAME, GENDER, BIRTHDAY, SENIORITY, PASSWORD, PHONE_NUMBER, NOTE)
+        values (#{name},#{gender},#{birthday},#{seniority},#{password}, #{phoneNumber},#{note})
+    </insert>
+
+    <update id="update">
+        update employee
+        <set>
+            <if test="name != null">NAME = #{name},</if>
+            <if test="birthday != null">BIRTHDAY = #{birthday},</if>
+            <if test="seniority != null">SENIORITY = #{seniority},</if>
+            <if test="password != null">PASSWORD = #{password},</if>
+            <if test="phoneNumber != null">PHONE_NUMBER = #{phoneNumber}</if>
+            <if test="note != null">NOTE = #{note}</if>
+        </set>
+        where EID = #{id};
+    </update>
+
+    <delete id="delete">
+        delete from employee
+        where EID = #{id}
+    </delete>
+
+    <select id="selectEmployeeById" resultMap="EmployeeResultMap">
+        select * from employee
+        where EID = #{id};
+    </select>
+
+    <select id="selectEmployeeByAll" resultMap="EmployeeResultMap">
+        select * from employee
+    </select>
+</mapper>

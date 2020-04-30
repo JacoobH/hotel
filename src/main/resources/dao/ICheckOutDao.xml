@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.hotel.dao.ICheckOutDao">
+    <!--resultMap里的id写返回结果集，以键值对得方式返回，type里写model得别名，映射类  -->
+    <resultMap id="CheckOutResultMap" type="CheckOut">
+        <!-- 这里的id为主键 ,result为返回结果，property为model对应得字段别名，column表里得字段名 -->
+        <id property="id" column="CID"/>
+        <result property="time" column="TIME"/>
+        <result property="note" column="NOTE"/>
+    </resultMap>
+
+    <resultMap id="CheckOutWithEmployeeAndGuestAndRoomResultMap" type="Room" extends="RoomResultMap">
+        <!-- 这里得id为主键 ,result为返回结果，property为model对应得字段别名，column表里得字段名 -->
+        <association property="employee"
+                     column="EID"
+                     resultMap="com.example.hotel.dao.IEmployeeDao.EmployeeResultMap"/>
+
+        <association property="guest"
+                     column="GID"
+                     resultMap="com.example.hotel.dao.IGuestDao.GuestResultMap"/>
+
+        <association property="room"
+                     column="RID"
+                     resultMap="com.example.hotel.dao.IRoomDao.RoomWithTypeResultMap"/>
+    </resultMap>
+
+    <!--parameterType：设置别名 useGeneratedKeys="true" keyProperty="no"表里自增 ，这里得设置方法-->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into check_out (EID, GID, RID, TIME, NOTE)
+        values (#{employee.id},#{guest.id},#{room.id},#{time},#{note});
+    </insert>
+
+    <update id="update">
+        update check_out
+        <set>
+            <if test="employee != null">EID = #{employee.id},</if>
+            <if test="guest != null">GID = #{guest.id},</if>
+            <if test="room != null">RID = #{room.id},</if>
+            <if test="time != null">TIME = #{time},</if>
+            <if test="note != null">NOTE = #{note}</if>
+        </set>
+        where CID = #{id};
+    </update>
+
+    <delete id="delete">
+        delete from check_out
+        where CID = #{id}
+    </delete>
+
+    <select id="selectCheckOutByAll" resultMap="CheckOutWithEmployeeAndGuestAndRoomResultMap">
+        select c.*, e.*, g.*, r.*
+        from check_out c left join employee e on c.EID = e.EID
+                       left join guest g on c.GID = g.GID
+                       left join room r on c.RID = r.RID
+    </select>
+
+    <select id="selectCheckOutById" resultMap="CheckOutWithEmployeeAndGuestAndRoomResultMap">
+        select c.*, e.*, g.*, r.*
+        from check_out c left join employee e on c.EID = e.EID
+                       left join guest g on c.GID = g.GID
+                       left join room r on c.RID = r.RID
+        where CID = #{id}
+    </select>
+</mapper>

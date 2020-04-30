@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.hotel.dao.IOrderDao">
+    <!--resultMap里的id写返回结果集，以键值对得方式返回，type里写model得别名，映射类  -->
+    <resultMap id="OrderResultMap" type="Order">
+        <!-- 这里的id为主键 ,result为返回结果，property为model对应得字段别名，column表里得字段名 -->
+        <id property="id" column="OID"/>
+        <result property="deposit" column="DEPOSIT"/>
+        <result property="time" column="TIME"/>
+        <result property="note" column="NOTE"/>
+    </resultMap>
+
+    <resultMap id="OrderWithEmployeeAndGuestAndRoomResultMap" type="Room" extends="RoomResultMap">
+        <!-- 这里得id为主键 ,result为返回结果，property为model对应得字段别名，column表里得字段名 -->
+        <association property="employee"
+                     column="EID"
+                     resultMap="com.example.hotel.dao.IEmployeeDao.EmployeeResultMap"/>
+
+        <association property="guest"
+                     column="GID"
+                     resultMap="com.example.hotel.dao.IGuestDao.GuestResultMap"/>
+
+        <association property="room"
+                     column="RID"
+                     resultMap="com.example.hotel.dao.IRoomDao.RoomWithTypeResultMap"/>
+    </resultMap>
+
+    <!--parameterType：设置别名 useGeneratedKeys="true" keyProperty="no"表里自增 ，这里得设置方法-->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into `order` (EID, GID, RID, DEPOSIT, TIME, NOTE)
+        values (#{employee.id},#{guest.id},#{room.id}, #{deposit},#{time},#{note});
+    </insert>
+
+    <update id="update">
+        update `order`
+        <set>
+            <if test="employee != null">EID = #{employee.id},</if>
+            <if test="guest != null">GID = #{guest.id},</if>
+            <if test="room != null">RID = #{room.id},</if>
+            <if test="deposit != null">DEPOSIT = #{deposit},</if>
+            <if test="time != null">TIME = #{time},</if>
+            <if test="note != null">NOTE = #{note}</if>
+        </set>
+        where OID = #{id};
+    </update>
+
+    <delete id="delete">
+        delete from `order`
+        where OID = #{id}
+    </delete>
+
+    <select id="selectOrderByAll" resultMap="OrderWithEmployeeAndGuestAndRoomResultMap">
+        select o.*, e.*, g.*, r.*
+        from `order` o left join employee e on o.EID = e.EID
+        left join guest g on o.GID = g.GID
+        left join room r on o.RID = r.RID
+    </select>
+
+    <select id="selectOrderById" resultMap="OrderWithEmployeeAndGuestAndRoomResultMap">
+        select o.*, e.*, g.*, r.*
+        from `order` o left join employee e on o.EID = e.EID
+                       left join guest g on o.GID = g.GID
+                       left join room r on o.RID = r.RID
+        where OID = #{id}
+    </select>
+</mapper>
